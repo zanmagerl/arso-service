@@ -1,0 +1,20 @@
+version: '3'
+
+env:
+  PROJECT: home-automation-378219
+  REGION: europe-west3
+  SERVICE_NAME: arso-service
+  IMAGE_NAME: europe-west3-docker.pkg.dev/home-automation-378219/arso-service-repository/arso-service
+
+tasks:
+  build:
+    desc: "Builds the Docker image and pushes image to Artifact Registry"
+    cmds:
+      - docker build -t arso-service .
+      - docker tag arso-service $IMAGE_NAME
+      - docker push $IMAGE_NAME
+  deploy:
+    desc: "Deploys new image to the Cloud Run"
+    cmds:
+      - task build
+      - gcloud run deploy $SERVICE_NAME --project $PROJECT --image $IMAGE_NAME --region $REGION --platform managed
